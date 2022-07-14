@@ -13,12 +13,14 @@ class FakeProductsRepository {
     return _products.firstWhere((prod) => prod.id == id);
   }
 
-  Future<List<Product>> fetchProductsList() {
+  Future<List<Product>> fetchProductsList() async {
+    await Future.delayed(const Duration(seconds: 2));
     return Future.value(_products);
   }
 
-  Stream<List<Product>> watchProductsList() {
-    return Stream.value(_products);
+  Stream<List<Product>> watchProductsList() async* {
+    await Future.delayed(const Duration(seconds: 2));
+    yield _products;
   }
 
   Stream<Product?> watchProduct(String id) {
@@ -31,12 +33,17 @@ final productRepositoryProvider = Provider<FakeProductsRepository>((ref) {
   return FakeProductsRepository();
 });
 
-final productListStreamProvider = StreamProvider<List<Product>>((ref) {
+final productListStreamProvider = StreamProvider.autoDispose<List<Product>>((ref) {
   final productRepository = ref.watch(productRepositoryProvider);
   return productRepository.watchProductsList();
 });
 
-final productListFutureProvider = FutureProvider<List<Product>>((ref) {
+final productListFutureProvider = FutureProvider.autoDispose<List<Product>>((ref) {
   final productRepository = ref.watch(productRepositoryProvider);
   return productRepository.fetchProductsList();
+});
+
+final productProvider = StreamProvider.autoDispose.family<Product?, String>((ref, id) {
+  final productsRepository = ref.watch(productRepositoryProvider);
+  return productsRepository.watchProduct(id);
 });
