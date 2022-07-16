@@ -11,6 +11,7 @@ class FakeAuthRepository {
   AppUser? get currentUser => _authState.value;
 
   Future<void> signInWithEmailAndPassword(String email, String password) async {
+    await Future.delayed(const Duration(seconds: 2));
     if (currentUser == null) {
       createNewUser(email);
     }

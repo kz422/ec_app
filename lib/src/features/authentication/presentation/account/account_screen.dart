@@ -39,13 +39,7 @@ class AccountScreen extends ConsumerWidget {
                       defaultActionText: 'Logout'.hardcoded,
                     );
                     if (logout == true) {
-                      // TODO: Sign out the user.
-                      final auth =
-                          ref.read(accountScreenControllerProvider.notifier);
-                      final isOk = await auth.signOut();
-                      if (isOk) {
-                        Navigator.of(context).pop();
-                      }
+                      ref.read(accountScreenControllerProvider.notifier).signOut();
                     }
                   },
           ),
@@ -66,7 +60,6 @@ class UserDataTable extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final style = Theme.of(context).textTheme.subtitle2!;
-    // TODO: get user from auth repository
     final user = ref.watch(authStateChangesProvider).value;
     return DataTable(
       columns: [
