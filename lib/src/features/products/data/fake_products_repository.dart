@@ -10,7 +10,7 @@ class FakeProductsRepository {
   }
 
   Product? getProduct(String id) {
-    return _products.firstWhere((prod) => prod.id == id);
+    return _getProduct(_products, id);
   }
 
   Future<List<Product>> fetchProductsList() async {
@@ -25,7 +25,15 @@ class FakeProductsRepository {
 
   Stream<Product?> watchProduct(String id) {
     return watchProductsList()
-        .map((products) => products.firstWhere((product) => product.id == id));
+        .map((products) => _getProduct(products, id));
+  }
+
+  static Product? _getProduct(List<Product> products, String id) {
+    try {
+      return products.firstWhere((prod) => prod.id == id);
+    } catch (e) {
+      return null;
+    }
   }
 }
 
@@ -33,17 +41,20 @@ final productRepositoryProvider = Provider<FakeProductsRepository>((ref) {
   return FakeProductsRepository();
 });
 
-final productListStreamProvider = StreamProvider.autoDispose<List<Product>>((ref) {
+final productListStreamProvider =
+    StreamProvider.autoDispose<List<Product>>((ref) {
   final productRepository = ref.watch(productRepositoryProvider);
   return productRepository.watchProductsList();
 });
 
-final productListFutureProvider = FutureProvider.autoDispose<List<Product>>((ref) {
+final productListFutureProvider =
+    FutureProvider.autoDispose<List<Product>>((ref) {
   final productRepository = ref.watch(productRepositoryProvider);
   return productRepository.fetchProductsList();
 });
 
-final productProvider = StreamProvider.autoDispose.family<Product?, String>((ref, id) {
+final productProvider =
+    StreamProvider.autoDispose.family<Product?, String>((ref, id) {
   final productsRepository = ref.watch(productRepositoryProvider);
   return productsRepository.watchProduct(id);
 });
